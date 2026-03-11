@@ -15,6 +15,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* PROTECTION: DISABLE TEXT SELECTION GLOBALLY */
+        * {
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none;    /* Firefox */
+            -ms-user-select: none;     /* IE/Edge */
+            user-select: none;         /* Standard */
+            -webkit-touch-callout: none; /* Disable long-press context menu on iOS */
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #e5e7eb;
@@ -166,7 +175,7 @@
         }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;"> <!-- PROTECTION: DISABLE RIGHT CLICK -->
 
     <div class="mobile-wrapper">
         <!-- Message Alert -->
@@ -366,6 +375,30 @@
                 spinner.classList.add('hidden');
             }
         }
+
+        // PROTECTION: BLOCK KEYBOARD SHORTCUTS (Ctrl+C, Ctrl+U, Ctrl+Shift+I, F12)
+        document.addEventListener('keydown', function(e) {
+            // Block F12
+            if (e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+            // Block Ctrl+C (Copy)
+            if (e.ctrlKey && e.keyCode === 67) {
+                e.preventDefault();
+                return false;
+            }
+            // Block Ctrl+U (View Source)
+            if (e.ctrlKey && e.keyCode === 85) {
+                e.preventDefault();
+                return false;
+            }
+            // Block Ctrl+Shift+I (Inspect Element)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                e.preventDefault();
+                return false;
+            }
+        });
     </script>
 </body>
 </html>
