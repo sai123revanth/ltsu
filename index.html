@@ -145,7 +145,7 @@
                 <div class="flex flex-col space-y-2">
                     <div>
                         <p class="text-[9px] uppercase font-bold text-blue-300/70 tracking-tighter leading-none mb-1">Name</p>
-                        <h2 class="text-[15px] font-bold leading-tight text-white tracking-wide" id="profile-name">Venkata Sai Revanth</h2>
+                        <h2 class="text-[15px] font-bold leading-tight text-white tracking-wide" id="profile-name">Loading...</h2>
                     </div>
                     
                     <div class="grid grid-cols-1 gap-1.5">
@@ -153,21 +153,21 @@
                             <p class="text-[9px] uppercase font-bold text-blue-300/70 tracking-tighter leading-none mb-1">Roll Number</p>
                             <p class="flex items-center gap-1.5 text-[11px] text-blue-50 font-medium">
                                 <i data-lucide="fingerprint" class="w-3 h-3 text-blue-200"></i> 
-                                <span id="profile-id">24100010117</span>
+                                <span id="profile-roll">...</span>
                             </p>
                         </div>
                         <div>
                             <p class="text-[9px] uppercase font-bold text-blue-300/70 tracking-tighter leading-none mb-1">Department</p>
                             <p class="flex items-center gap-1.5 text-[11px] text-blue-50 font-medium leading-tight">
                                 <i data-lucide="book-open" class="w-3 h-3 text-blue-200"></i> 
-                                B.Tech CSE (AI & ML)
+                                <span id="profile-dept">Loading...</span>
                             </p>
                         </div>
                         <div>
                             <p class="text-[9px] uppercase font-bold text-blue-300/70 tracking-tighter leading-none mb-1">Mail</p>
                             <p class="flex items-center gap-1.5 text-[11px] text-blue-50 font-medium leading-tight truncate max-w-[240px]">
                                 <i data-lucide="mail" class="w-3 h-3 text-blue-200"></i> 
-                                <span id="profile-email">24100010117@ltsu.ac.in</span>
+                                <span id="profile-email">...</span>
                             </p>
                         </div>
                     </div>
@@ -319,22 +319,39 @@
 
     <script>
         lucide.createIcons();
+        // UPDATED WEBAPP URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypEEK-rCKOyvAbAgzOnRCjFFaLyEvr0K5PEMOBk438d_bb-v0tJgAySrHLiBzUwKH3/exec";
 
-        // Update UI with logged in user info
-        window.onload = function() {
+        // Update UI with logged in user info and fetch latest profile from spreadsheet
+        window.onload = async function() {
             const userDataString = localStorage.getItem('ltsu_user_session') || sessionStorage.getItem('ltsu_user_session');
             if (userDataString) {
                 const userData = JSON.parse(userDataString);
-                
-                // Update text elements if they exist
-                if (document.getElementById('profile-id')) {
-                    document.getElementById('profile-id').innerText = userData.id;
-                }
-                
-                // If the user's role is 'teacher', update specific text
-                if (userData.role === 'teacher') {
-                    document.getElementById('profile-name').innerText = "Faculty Member"; 
-                    document.getElementById('profile-email').innerText = userData.id + "@ltsu.ac.in";
+                const studentId = userData.id;
+
+                try {
+                    // Call Apps Script to fetch latest profile info from the "Home Display" sheet
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'getProfile', id: studentId })
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const p = result.profile;
+                        document.getElementById('profile-name').innerText = p.name || "N/A";
+                        document.getElementById('profile-roll').innerText = p.roll || studentId;
+                        document.getElementById('profile-dept').innerText = p.dept || "N/A";
+                        document.getElementById('profile-email').innerText = p.mail || "N/A";
+                    } else {
+                        console.error("Profile fetch failed:", result.message);
+                        // Basic fallback
+                        document.getElementById('profile-name').innerText = "Session User";
+                        document.getElementById('profile-roll').innerText = studentId;
+                    }
+                } catch (error) {
+                    console.error("Network error fetching profile:", error);
+                    document.getElementById('profile-name').innerText = "Offline Mode";
                 }
             }
         };
