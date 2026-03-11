@@ -169,7 +169,7 @@
 <body>
 
     <div class="mobile-wrapper">
-        <!-- Message Alert (Custom Box instead of alert) -->
+        <!-- Message Alert -->
         <div id="message-box" class="bg-red-50 border border-red-200 p-4 rounded-xl flex items-center gap-3 shadow-lg">
             <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
             <p id="message-text" class="text-xs font-semibold text-red-800"></p>
@@ -264,10 +264,17 @@
     <script>
         lucide.createIcons();
         
-        // REPLACE THIS with your deployed Google Apps Script Web App URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx5fuyT65aTY6K4jNHga0l3Am3D1rFcvWNzS15waT9a0cgVF0wh1lzUr7_w6WP-WqE/exec";
-        
+        const SCRIPT_URL = "YOUR_DEPLOYED_WEB_APP_URL_HERE";
         let currentRole = 'student';
+
+        // Check if user is already remembered
+        window.onload = function() {
+            const rememberedUser = localStorage.getItem('ltsu_user_session');
+            const sessionUser = sessionStorage.getItem('ltsu_user_session');
+            if (rememberedUser || sessionUser) {
+                window.location.href = 'index.html';
+            }
+        };
 
         function switchRole(role) {
             currentRole = role;
@@ -313,6 +320,7 @@
         async function handleLogin() {
             const id = document.getElementById('user-id').value;
             const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
             const btn = document.getElementById('login-btn');
             const btnText = document.getElementById('btn-text');
             const spinner = document.getElementById('btn-spinner');
@@ -323,12 +331,10 @@
             }
 
             if (SCRIPT_URL === "YOUR_DEPLOYED_WEB_APP_URL_HERE") {
-                // Mock behavior for testing if URL isn't set
-                showMessage("Please deploy the Apps Script and update SCRIPT_URL in login.html");
+                showMessage("Please deploy the Apps Script first.");
                 return;
             }
 
-            // UI Loading State
             btn.disabled = true;
             btnText.innerText = "Verifying...";
             spinner.classList.remove('hidden');
@@ -342,15 +348,18 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // Store user data in memory/session if needed
-                    sessionStorage.setItem('user', JSON.stringify(result.user));
+                    const sessionData = JSON.stringify(result.user);
+                    if (remember) {
+                        localStorage.setItem('ltsu_user_session', sessionData);
+                    } else {
+                        sessionStorage.setItem('ltsu_user_session', sessionData);
+                    }
                     window.location.href = 'index.html';
                 } else {
                     showMessage(result.message || "Invalid credentials");
                 }
             } catch (error) {
                 showMessage("Connection error. Please try again later.");
-                console.error(error);
             } finally {
                 btn.disabled = false;
                 btnText.innerText = "Sign In";
