@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>LTSU Punjab - Student Portal</title>
     
     <!-- Tailwind CSS -->
@@ -38,6 +38,8 @@
             background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
             position: relative;
             overflow: hidden;
+            /* Added safe area support for mobile status bars */
+            padding-top: calc(1.5rem + env(safe-area-inset-top)); 
         }
         
         /* Subtle architectural/geometric pattern overlay for a professional touch */
@@ -105,7 +107,7 @@
     <div class="mobile-wrapper flex flex-col no-scrollbar">
         
         <!-- Header Section -->
-        <div class="header-bg text-white pb-8 pt-10 shrink-0 rounded-b-3xl shadow-md">
+        <div class="header-bg text-white pb-8 shrink-0 rounded-b-3xl shadow-md">
             <!-- Top App Bar -->
             <div class="flex justify-between items-center px-6 mb-8 relative z-10">
                 <div class="flex items-center gap-3">
